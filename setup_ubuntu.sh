@@ -164,14 +164,21 @@ from apps.billing.models import Subscription, CreditPack
 User = get_user_model()
 if not User.objects.filter(email='admin@emailguard.io').exists():
     u = User.objects.create_superuser('admin@emailguard.io', 'admin123')
-    u.first_name = 'Admin'; u.is_verified = True; u.save()
-    Subscription.objects.get_or_create(u.id and u, defaults={'plan':'pro','available_credits':99999})
-    print('[seed] Admin user created')
+    u.first_name = 'Admin'
+    u.is_verified = True
+    u.save()
+    Subscription.objects.get_or_create(user=u, defaults={'plan': 'pro', 'available_credits': 99999})
+    print('[seed] Admin user created: admin@emailguard.io / admin123')
 else:
     print('[seed] Admin user already exists')
-packs=[('Starter Pack',1000,9.99,False),('Growth Pack',5000,29.99,True),('Pro Pack',25000,99.99,False),('Enterprise Pack',100000,299.99,False)]
-for n,c,p,pop in packs:
-    CreditPack.objects.get_or_create(name=n,defaults={'credits':c,'price_usd':p,'is_active':True,'is_popular':pop})
+packs = [
+    ('Starter Pack',    1000,    9.99, False),
+    ('Growth Pack',     5000,   29.99, True),
+    ('Pro Pack',       25000,   99.99, False),
+    ('Enterprise Pack',100000, 299.99, False),
+]
+for name, credits, price, popular in packs:
+    CreditPack.objects.get_or_create(name=name, defaults={'credits': credits, 'price_usd': price, 'is_active': True, 'is_popular': popular})
 print('[seed] Credit packs ready')
 " 2>&1
 
