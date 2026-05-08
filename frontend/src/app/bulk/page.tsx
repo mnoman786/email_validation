@@ -23,7 +23,8 @@ export default function BulkPage() {
   const { data: jobsData, isLoading } = useQuery({
     queryKey: ['bulk-jobs'],
     queryFn: () => bulkApi.getJobs().then((r) => r.data),
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
+      const data = query.state.data as { results?: BulkJob[] } | undefined
       const hasActive = data?.results?.some((j: BulkJob) =>
         ['pending', 'processing'].includes(j.status)
       )
