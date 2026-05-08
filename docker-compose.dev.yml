@@ -1,0 +1,80 @@
+version: '3.9'
+
+# Development override - mounts code for hot reload
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: emailguard_db_dev
+    environment:
+      POSTGRES_DB: emailvalidation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: emailguard_redis_dev
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: emailguard_backend_dev
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      DEBUG: "True"
+      DB_HOST: db
+      DB_NAME: emailvalidation
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      SECRET_KEY: dev-secret-key-change-in-prod
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: emailguard_celery_dev
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      DB_HOST: db
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    command: celery -A config worker -Q validation,bulk,webhooks,default -c 4 --loglevel=debug
+
+  frontend:
+    image: node:20-alpine
+    container_name: emailguard_frontend_dev
+    working_dir: /app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+
+volumes:
+  postgres_data_dev:

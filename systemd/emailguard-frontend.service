@@ -1,0 +1,31 @@
+[Unit]
+Description=EmailGuard Next.js Frontend
+After=network.target emailguard-backend.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+
+WorkingDirectory=/opt/emailguard/frontend
+
+Environment="NODE_ENV=production"
+Environment="PORT=5000"
+Environment="NEXT_PUBLIC_API_URL=http://localhost:9002"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+ExecStart=/usr/bin/node_modules/.bin/next start --port 5000
+# Fallback if next isn't in node_modules/.bin globally:
+# ExecStart=/usr/bin/npx next start --port 5000
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=emailguard-frontend
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
