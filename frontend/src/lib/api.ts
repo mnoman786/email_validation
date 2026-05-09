@@ -131,7 +131,7 @@ export const validationApi = {
   validateSingle: (email: string, checkSmtp = true) =>
     api.post('/validation/validate/', { email, check_smtp: checkSmtp }),
 
-  getHistory: (params?: Record<string, string | number>) =>
+  getHistory: (params?: Record<string, string | number | boolean>) =>
     api.get('/validation/history/', { params }),
 
   getStats: (days = 30) =>
@@ -145,7 +145,7 @@ export const bulkApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 
-  getJobs: (params?: Record<string, string>) =>
+  getJobs: (params?: Record<string, string | number>) =>
     api.get('/validation/bulk/', { params }),
 
   getJob: (jobId: string) =>

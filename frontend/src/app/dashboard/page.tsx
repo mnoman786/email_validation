@@ -100,7 +100,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {recentHistory?.results?.length > 0 ? (
+                {(recentHistory?.results?.length ?? 0) > 0 ? (
                   recentHistory.results.map((result: any) => (
                     <div key={result.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                       <div className="min-w-0 flex-1">
@@ -140,7 +140,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {recentJobs?.results?.length > 0 ? (
+                {(recentJobs?.results?.length ?? 0) > 0 ? (
                   recentJobs.results.map((job: any) => (
                     <div key={job.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                       <div className="min-w-0 flex-1">
